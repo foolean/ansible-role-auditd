@@ -1,0 +1,15 @@
+# Copyright (c) 2023, Bennett Samowich <bennett@foolean.org>
+# All rights reserved
+# SPDX short identifier: BSD-3-Clause
+---
+
+- name: Reload auditd rules
+  become: true
+  ansible.builtin.command:
+    cmd: 'augenrules --load'
+
+- name: Restart auditd
+  become: true
+  ansible.builtin.systemd:
+    name: 'auditd'
+    state: restarted

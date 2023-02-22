@@ -1,0 +1,109 @@
+# Copyright (c) 2023, Bennett Samowich <bennett@foolean.org>
+# All rights reserved
+# SPDX short identifier: BSD-3-Clause
+---
+
+- name: Role foolean/auditd
+  block:
+
+    - name: CIS | Ensure auditd is installed
+      become: true
+      ansible.builtin.package:
+        name: 'audit'
+        state: present
+
+    - name: CIS | Ensure auditing for processes that start prior to auditd is enabled (check)
+      become: true
+      ansible.builtin.command:
+        cmd: "grep -P 'GRUB_CMDLINE_LINUX=.* (audit=1)' /etc/default/grub"
+      check_mode: no
+      changed_when: auditd_kernel_args.rc == 1
+      failed_when: auditd_kernel_args.rc == -1
+      register: auditd_kernel_args
+
+    - name: CIS | Ensure auditing for processes that start prior to auditd is enabled (set)
+      become: true
+      ansible.builtin.shell:
+        cmd: "grubby --update-kernel ALL --args 'audit=1'"
+      when:
+        - auditd_kernel_args.rc == 1
+
+    - name: CIS | Ensure audit_backlog_limit is sufficient (check)
+      become: true
+      ansible.builtin.command:
+        cmd: "grep -P 'GRUB_CMDLINE_LINUX=.* (audit_backlog_limit={{ auditd_backlog_limit }})' /etc/default/grub"
+      check_mode: no
+      changed_when: auditd_kernel_args.rc == 1
+      failed_when: auditd_kernel_args.rc == -1
+      register: auditd_kernel_args
+
+    - name: CIS | Ensure audit_backlog_limit is sufficient (set)
+      become: true
+      ansible.builtin.shell:
+        cmd: "grubby --update-kernel ALL --args 'audit_backlog_limit={{ auditd_backlog_limit }}'"
+      when:
+        - auditd_kernel_args.rc == 1
+
+    - name: CIS | Configure auditd
+      become: true
+      ansible.builtin.template:
+        src: 'etc/audit/auditd.conf.j2'
+        dest: '/etc/audit/auditd.conf'
+        owner: 'root'
+        group: 'root'
+        mode: '0640'
+      notify: Restart auditd
+
+    # We need to collect the current UID_MIN from
+    # login.defs for use in the rule files below.
+    - name: Get UID_MIN
+      ansible.builtin.command:
+        cmd: "awk '/^\\s*UID_MIN/{print $2}' /etc/login.defs"
+      register: auditd_uid_min
+      changed_when: false
+      check_mode: false
+
+    - name: CIS | Configure auditd rules
+      become: true
+      ansible.builtin.template:
+        src:  "etc/audit/rules.d/{{ item }}.j2"
+        dest: "/etc/audit/rules.d/{{ item }}"
+        owner: 'root'
+        group: 'root'
+        mode: '0640'
+      notify: Reload auditd rules
+      with_items:
+        - '50-access.rules'
+        - '50-delete.rules'
+        - '50-identity.rules'
+        - '50-kernel_modules.rules'
+        - '50-login.rules'
+        - '50-MAC-policy.rules'
+        - '50-perm_chng.rules'
+        - '50-perm_mod.rules'
+        - '50-priv_cmd.rules'
+        - '50-privileged.rules'
+        - '50-scope.rules'
+        - '50-session.rules'
+        - '50-sudo.rules'
+        - '50-system_local.rules'
+        - '50-time-change.rules'
+        - '50-user_emulation.rules'
+        - '50-usermod.rules'
+        - '99-finalize.rules'
+
+    - name: CIS | Ensure auditd service is enabled
+      become: true
+      ansible.builtin.systemd:
+        name: 'auditd'
+        enabled: true
+        masked: false
+        state: started
+
+    # Flush any handlers that we might have called
+    - name: Flush handlers
+      ansible.builtin.meta:
+        flush_handlers
+
+  tags:
+    - 'role_foolean_auditd'

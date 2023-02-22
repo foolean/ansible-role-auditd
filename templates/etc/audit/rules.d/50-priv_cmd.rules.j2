@@ -1,0 +1,2 @@
+# CIS: Ensure successful and unsuccessful attempts to use the setfacl are recorded
+-a always,exit -F path=/usr/bin/setfacl -F perm=x -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -k perm_chng

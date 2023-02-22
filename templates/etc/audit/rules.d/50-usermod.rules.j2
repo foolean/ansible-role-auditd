@@ -1,0 +1,2 @@
+# CIS: Ensure successful and unsuccessful attempts to use the usermod command are recorded
+-a always,exit -F path=/usr/sbin/usermod -F perm=x -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -k usermod

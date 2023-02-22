@@ -1,0 +1,5 @@
+# CIS: Ensure successful and unsuccessful attempts to use the chcon command are recorded
+-a always,exit -F path=/usr/bin/chcon -F perm=x -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -k perm_chng
+
+# CIS: Ensure successful and unsuccessful attempts to use the chacl command are recorded
+-a always,exit -F path=/usr/bin/chacl -F perm=x -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -k perm_chng

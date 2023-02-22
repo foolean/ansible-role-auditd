@@ -1,0 +1,4 @@
+# CIS: Ensure use of privileged commands are collected
+{% for command in auditd_privileged_commands|unique|sort %}
+{{ command }}
+{% endfor %}
