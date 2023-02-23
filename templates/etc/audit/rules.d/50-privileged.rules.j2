@@ -1,4 +1,4 @@
 # CIS: Ensure use of privileged commands are collected
 {% for command in auditd_privileged_commands|unique|sort %}
-{{ command }}
+-a always,exit -F path={{ command }} -F perm=x -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -k privileged
 {% endfor %}
