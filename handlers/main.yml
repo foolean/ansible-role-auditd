@@ -8,8 +8,7 @@
   ansible.builtin.command:
     cmd: 'augenrules --load'
 
-- name: Restart auditd
+- name: Restart auditd  # noqa: command-instead-of-module
   become: true
-  ansible.builtin.systemd:
-    name: 'auditd'
-    state: restarted
+  ansible.builtin.command:
+    cmd: 'service auditd restart'
