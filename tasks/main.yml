@@ -3,6 +3,9 @@
 # SPDX short identifier: BSD-3-Clause
 ---
 
+# We put the entire role in a block so we can create
+# a role specific tag, which saves the caller from
+# having to do so in their playbook.
 - name: Role foolean/auditd
   block:
 
@@ -16,14 +19,14 @@
       become: true
       ansible.builtin.command:
         cmd: "grep -P 'GRUB_CMDLINE_LINUX=.* (audit=1)' /etc/default/grub"
-      check_mode: no
+      check_mode: false
       changed_when: auditd_kernel_args.rc == 1
       failed_when: auditd_kernel_args.rc == -1
       register: auditd_kernel_args
 
     - name: CIS | Ensure auditing for processes that start prior to auditd is enabled (set)
       become: true
-      ansible.builtin.shell:
+      ansible.builtin.command:
         cmd: "grubby --update-kernel ALL --args 'audit=1'"
       when:
         - auditd_kernel_args.rc == 1
@@ -32,14 +35,14 @@
       become: true
       ansible.builtin.command:
         cmd: "grep -P 'GRUB_CMDLINE_LINUX=.* (audit_backlog_limit={{ auditd_backlog_limit }})' /etc/default/grub"
-      check_mode: no
+      check_mode: false
       changed_when: auditd_kernel_args.rc == 1
       failed_when: auditd_kernel_args.rc == -1
       register: auditd_kernel_args
 
     - name: CIS | Ensure audit_backlog_limit is sufficient (set)
       become: true
-      ansible.builtin.shell:
+      ansible.builtin.command:
         cmd: "grubby --update-kernel ALL --args 'audit_backlog_limit={{ auditd_backlog_limit }}'"
       when:
         - auditd_kernel_args.rc == 1
@@ -66,7 +69,7 @@
     - name: CIS | Configure auditd rules
       become: true
       ansible.builtin.template:
-        src:  "etc/audit/rules.d/{{ item }}.j2"
+        src: "etc/audit/rules.d/{{ item }}.j2"
         dest: "/etc/audit/rules.d/{{ item }}"
         owner: 'root'
         group: 'root'
