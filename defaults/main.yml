@@ -83,4 +83,3 @@ auditd_privileged_commands:
   - '/usr/sbin/postqueue'
   - '/usr/sbin/unix_chkpwd'
   - '/usr/sbin/userhelper'
-
