@@ -37,4 +37,6 @@ q_depth = 1200
 overflow_action = SYSLOG
 max_restarts = 10
 plugin_dir = /etc/audit/plugins.d
+{% if ansible_os_family|lower == "redhat" %}
 end_of_event_timeout = 2
+{% endif %}
