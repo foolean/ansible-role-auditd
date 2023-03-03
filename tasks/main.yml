@@ -9,10 +9,17 @@
 - name: Role foolean/auditd
   block:
 
+    - name: Set OS variables
+      ansible.builtin.include_vars:
+        file: "{{ item }}"
+      with_first_found:
+        - "{{ ansible_os_family|lower }}.yml"
+        - "default.yml"
+
     - name: CIS | Ensure auditd is installed
       become: true
       ansible.builtin.package:
-        name: 'audit'
+        name: "{{ auditd_packages }}"
         state: present
 
     - name: CIS | Ensure auditing for processes that start prior to auditd is enabled (check)
@@ -23,12 +30,15 @@
       changed_when: auditd_kernel_args.rc == 1
       failed_when: auditd_kernel_args.rc == -1
       register: auditd_kernel_args
+      when:
+        - ansible_os_family == "RedHat"
 
     - name: CIS | Ensure auditing for processes that start prior to auditd is enabled (set)
       become: true
       ansible.builtin.command:
         cmd: "grubby --update-kernel ALL --args 'audit=1'"
       when:
+        - ansible_os_family == "RedHat"
         - auditd_kernel_args.rc == 1
 
     - name: CIS | Ensure audit_backlog_limit is sufficient (check)
@@ -39,13 +49,26 @@
       changed_when: auditd_kernel_args.rc == 1
       failed_when: auditd_kernel_args.rc == -1
       register: auditd_kernel_args
+      when:
+        - ansible_os_family == "RedHat"
 
     - name: CIS | Ensure audit_backlog_limit is sufficient (set)
       become: true
       ansible.builtin.command:
         cmd: "grubby --update-kernel ALL --args 'audit_backlog_limit={{ auditd_backlog_limit }}'"
       when:
+        - ansible_os_family == "RedHat"
         - auditd_kernel_args.rc == 1
+
+    - name: CIS | Ensure auditing for processes that start prior to auditd is enabled
+      become: true
+      ansible.builtin.template:
+        src: 'etc/default/grub.d/60-auditd.cfg.j2'
+        dest: '/etc/default/grub.d/60-auditd.conf'
+        owner: 'root'
+        group: 'root'
+        mode: '0644'
+      notify: Auditd update grub
 
     - name: CIS | Configure auditd
       become: true

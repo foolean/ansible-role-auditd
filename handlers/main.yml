@@ -12,3 +12,8 @@
   become: true
   ansible.builtin.command:
     cmd: 'service auditd restart'
+
+- name: Auditd update grub
+  become: true
+  ansible.builtin.command:
+    cmd: "update-grub"
