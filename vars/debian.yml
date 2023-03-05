@@ -8,3 +8,27 @@
 auditd_packages:
   - 'auditd'
   - 'audispd-plugins'
+
+# auditd_default_privileged_commands
+#    Default list of privileged commands auditd should monitor
+auditd_default_privileged_commands:
+  - '/usr/bin/chage'
+  - '/usr/bin/chfn'
+  - '/usr/bin/chsh'
+  - '/usr/bin/crontab'
+  - '/usr/bin/dotlockfile'
+  - '/usr/bin/expiry'
+  - '/usr/bin/gpasswd'
+  - '/usr/bin/mount'
+  - '/usr/bin/msmtp'
+  - '/usr/bin/newgrp'
+  - '/usr/bin/passwd'
+  - '/usr/bin/ssh-agent'
+  - '/usr/bin/su'
+  - '/usr/bin/sudo'
+  - '/usr/bin/umount'
+  - '/usr/bin/wall'
+  - '/usr/lib/dbus-1.0/dbus-daemon-launch-helper'
+  - '/usr/lib/openssh/ssh-keysign'
+  - '/usr/sbin/exim4'
+  - '/usr/sbin/unix_chkpwd'

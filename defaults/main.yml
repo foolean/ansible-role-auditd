@@ -56,30 +56,4 @@ auditd_num_logs: 99
 # auditd_privileged_commands
 #    List of privileged commands auditd should monitor
 #    Ref: CIS
-auditd_privileged_commands:
-  - '/usr/bin/at'
-  - '/usr/bin/chage'
-  - '/usr/bin/chfn'
-  - '/usr/bin/chsh'
-  - '/usr/bin/crontab'
-  - '/usr/bin/fusermount3'
-  - '/usr/bin/gpasswd'
-  - '/usr/bin/mount'
-  - '/usr/bin/newgrp'
-  - '/usr/bin/passwd'
-  - '/usr/bin/pkexec'
-  - '/usr/bin/su'
-  - '/usr/bin/sudo'
-  - '/usr/bin/umount'
-  - '/usr/bin/write'
-  - '/usr/sbin/grub2-set-bootflag'
-  - '/usr/sbin/mount.nfs'
-  - '/usr/sbin/pam_timestamp_check'
-  - '/usr/sbin/postdrop'
-  - '/usr/sbin/postqueue'
-  - '/usr/sbin/unix_chkpwd'
-  - '/usr/sbin/userhelper'
-  # - '/usr/libexec/dbus-1/dbus-daemon-launch-helper'
-  # - '/usr/libexec/openssh/ssh-keysign'
-  # - '/usr/libexec/utempter/utempter'
-  # - '/usr/lib/polkit-1/polkit-agent-helper-1'
+auditd_privileged_commands: "{{ auditd_default_privileged_commands }}"
