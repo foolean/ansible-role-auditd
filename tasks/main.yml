@@ -70,7 +70,31 @@
         mode: '0644'
       notify: Auditd update grub
       when:
-        - ansible_os_family|lower == "debian"
+        - ansible_distribution|lower == "debian"
+        - ansible_lsb.id|lower != "raspbian"
+
+    - name: CIS | Ensure audit_backlog_limit is sufficient (check)
+      become: true
+      ansible.builtin.command:
+        cmd: "grep -P 'console=.* (audit_backlog_limit={{ auditd_backlog_limit }})' /boot/cmdline.txt"
+      check_mode: false
+      changed_when: auditd_kernel_args.rc == 1
+      failed_when: auditd_kernel_args.rc == -1
+      register: auditd_kernel_args
+      when:
+        - ansible_lsb.id|lower == "raspbian"
+
+    - name: CIS | Ensure auditing for processes that start prior to auditd is enabled
+      become: true
+      ansible.builtin.replace:
+        path: "/boot/cmdline.txt"
+        regexp: '^([\w](?!.*\b{{ item }}\b).*)$'
+        replace: '\1 {{ item }}'
+      with_items:
+        - "audit=1"
+        - "audit_backlog_limit={{ auditd_backlog_limit }}"
+      when:
+        - ansible_lsb.id|lower == "raspbian"
 
     - name: CIS | Configure auditd
       become: true
@@ -127,6 +151,7 @@
         enabled: true
         masked: false
         state: started
+      when: not ansible_check_mode
 
     # Flush any handlers that we might have called
     - name: Flush handlers

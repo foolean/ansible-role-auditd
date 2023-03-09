@@ -1,7 +1,11 @@
 # CIS: Ensure discretionary access control permission modification events are collected
+{% if ansible_userspace_bits == 64 %}
 -a always,exit -F arch=b64 -S chmod,fchmod,fchmodat -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -F key=perm_mod
 -a always,exit -F arch=b64 -S chown,fchown,lchown,fchownat -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -F key=perm_mod
+{% endif %}
 -a always,exit -F arch=b32 -S chmod,fchmod,fchmodat -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -F key=perm_mod
 -a always,exit -F arch=b32 -S lchown,fchown,chown,fchownat -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -F key=perm_mod
+{% if ansible_userspace_bits == 64 %}
 -a always,exit -F arch=b64 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -F key=perm_mod
+{% endif %}
 -a always,exit -F arch=b32 -S setxattr,lsetxattr,fsetxattr,removexattr,lremovexattr,fremovexattr -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -F key=perm_mod

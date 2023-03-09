@@ -1,5 +1,7 @@
 # CIS: Ensure unsuccessful file access attempts are collected
+{% if ansible_userspace_bits == 64 %}
 -a always,exit -F arch=b64 -S creat,open,openat,truncate,ftruncate -F exit=-EACCES -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -k access
 -a always,exit -F arch=b64 -S creat,open,openat,truncate,ftruncate -F exit=-EPERM -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -k access
+{% endif %}
 -a always,exit -F arch=b32 -S creat,open,openat,truncate,ftruncate -F exit=-EACCES -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -k access
 -a always,exit -F arch=b32 -S creat,open,openat,truncate,ftruncate -F exit=-EPERM -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -k access

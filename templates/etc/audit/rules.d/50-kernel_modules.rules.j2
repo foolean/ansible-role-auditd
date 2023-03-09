@@ -1,3 +1,5 @@
 # CIS: Ensure kernel module loading unloading and modification is collected
+{% if ansible_userspace_bits == 64 %}
 -a always,exit -F arch=b64 -S init_module,finit_module,delete_module,create_module,query_module -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -k kernel_modules
+{% endif %}
 -a always,exit -F path=/usr/bin/kmod -F perm=x -F auid>={{ auditd_uid_min.stdout }} -F auid!=unset -k kernel_modules

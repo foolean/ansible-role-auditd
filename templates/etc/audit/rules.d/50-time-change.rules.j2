@@ -1,4 +1,6 @@
 # CIS: Ensure events that modify date and time information are collected
+{% if ansible_userspace_bits == 64 %}
 -a always,exit -F arch=b64 -S adjtimex,settimeofday,clock_settime -k time-change
+{% endif %}
 -a always,exit -F arch=b32 -S adjtimex,settimeofday,clock_settime -k time-change
 -w /etc/localtime -p wa -k time-change
